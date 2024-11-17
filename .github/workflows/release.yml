@@ -1,0 +1,101 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Triggers only when a version tag (e.g., v1.0.0) is pushed.
+
+jobs:
+  release:
+    name: Release offline-website
+    runs-on: ubuntu-latest
+
+    # For git commit
+    permissions:
+      contents: write
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Bun
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          # Specify a version if needed
+          bun-version: latest
+
+      # Step 3: Cache bun.lockb
+      - uses: actions/cache@v4
+        id: bun-lockb
+        with:
+          path: |
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        if: steps.bun-lockb.outputs.cache-hit != 'true'
+        run: bun install --production --frozen-lockfile
+
+      # Step 5: Set env playwright version
+      - name: Set env playwright version
+        run: echo "PLAYWRIGHT_VERSION=$(bun -e "console.log(require('./package.json').dependencies['playwright'])")" >> $GITHUB_ENV
+
+      # Step 6: Cache Playwright Browsers
+      - name: Cache playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ env.PLAYWRIGHT_VERSION }}
+
+      # Step 7: Install playwright dependencies
+      - name: Install playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: bunx playwright install --with-deps chromium
+
+      # Step 8: Run tests
+      - name: Run tests
+        run: bun test
+
+      # Step 6: Run compile
+      - name: Compile CLI
+        run: |
+          bun darwin-arm64
+          bun darwin-x64
+          bun linux-arm64
+          bun linux-x64
+          bun linux-x64-baseline
+          bun linux-x64-modern
+          bun windows-x64
+          bun windows-x64-baseline
+          bun windows-x64-modern
+
+      # Step 7: Generate checksums for release artifacts
+      - name: CLI checksum
+        run: |
+          cd bin
+          find . -type f ! -name "*.sha256" -exec sh -c 'sha256sum "$1" | awk "{print \$1}" > "$1.sha256"' _ {} \;
+
+      # Step 8: GitHub release
+      - name: Release to GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            CHANGELOG.md
+            bin/*
+
+      # Step 9: Build Node.js application
+      - name: Build CLI app
+        run: bun node-build
+
+      # # Step 10: Publish to NPM
+      - name: Publish to NPM
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+          npm publish --access public

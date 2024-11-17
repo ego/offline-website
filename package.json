@@ -1,0 +1,86 @@
+{
+  "name": "offline-website",
+  "displayName": "offline-website",
+  "version": "0.0.2",
+  "description": "Save offline website as an single archive (ZIP, JSON, HTML, TXT, PDF, PNG, MHTML).\nWebsite title will be the folder/archive name.\nNothing special, it just works, just does its job right. Enjoy!",
+  "keywords": [
+    "offline",
+    "website",
+    "screenshot",
+    "archive",
+    "print",
+    "websiteprint",
+    "backup",
+    "zip",
+    "json",
+    "html",
+    "txt",
+    "pdf",
+    "png",
+    "mhtml",
+    "singlefile",
+    "cli",
+    "playwright",
+    "commander"
+  ],
+  "homepage": "https://github.com/ego/offline-website",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ego/offline-website.git"
+  },
+  "author": {
+    "name": "ego"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "src/index.ts",
+  "bin": {
+    "offline-website": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "darwin-arm64": "bun build --target=bun-darwin-arm64 --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/darwin-arm64-offline-website",
+    "darwin-x64": "bun build --target=bun-darwin-x64 --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/darwin-x64-offline-website",
+    "dev": "bun src/index.ts",
+    "fmt": "prettier --write .",
+    "lint": "prettier --check .",
+    "linux-arm64": "bun build --target=bun-linux-arm64 --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/linux-arm64-offline-website",
+    "linux-x64": "bun build --target=bun-linux-x64 --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/linux-x64-offline-website",
+    "linux-x64-baseline": "bun build --target=bun-linux-x64-baseline --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/linux-x64-baseline-offline-website",
+    "linux-x64-modern": "bun build --target=bun-linux-x64-modern --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/linux-x64-modern-offline-website",
+    "node-build": "bun build src/index.ts --outdir dist --target=node --minify --minify-whitespace --minify-identifiers --minify-syntax",
+    "node-build-v2": "bun build src/index.ts --outdir dist --target=node --external=playwright --external=chromium-bidi --minify --minify-whitespace --minify-identifiers --minify-syntax",
+    "windows-x64": "bun build --target=bun-windows-x64 --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/windows-x64-offline-website",
+    "windows-x64-baseline": "bun build --target=bun-windows-x64-baseline --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/windows-x64-baseline-offline-website",
+    "windows-x64-modern": "bun build --target=bun-windows-x64-modern --minify-whitespace --minify-identifiers --minify-syntax ./src/index.ts --compile --minify --bytecode --outfile bin/windows-x64-modern-offline-website"
+  },
+  "dependencies": {
+    "chromium-bidi": "^0",
+    "commander": "^12",
+    "electron": "^33",
+    "fs": "^0.0.1-security",
+    "picocolors": "^1",
+    "playwright": "^1",
+    "zip-a-folder": "^3"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4",
+    "@types/bun": "latest",
+    "prettier": "^3",
+    "prettier-plugin-organize-imports": "^4",
+    "prettier-plugin-packagejson": "^2"
+  },
+  "peerDependencies": {
+    "bun": "^1",
+    "typescript": "^5"
+  },
+  "engines": {
+    "bun": ">=1.0",
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
